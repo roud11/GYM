@@ -10,7 +10,7 @@ stop = False
 
 while not stop:
     if datetime.datetime.now().hour == 20:
-        zapros = requests.post(reserve_url, headers=headers, data={'fio': 'Рогачева Кристина', 'phone': '79965298428', 'scheduleId': '197679514112023', 'clubId': '1941'})
+        zapros = requests.post(reserve_url, headers=headers, data={'fio': 'Рогачева Кристина', 'phone': '79965298428', 'scheduleId': '197679521112023', 'clubId': '1941'})
         code = zapros.status_code
         print(code)
         print(zapros.content)
