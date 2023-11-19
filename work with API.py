@@ -38,8 +38,22 @@ print(schedule_url)
 schedule_json = requests.get(schedule_url, headers=headers).json()
 print(schedule_json['schedule'])
 schedule = {}
-for work in schedule_json:
-    schedule[work['id']] = {'Date and time': work['datetime'], 'Trainer': work}
+work_count = 0
+for work in schedule_json['schedule']:
+    work_count += 1
+    schedule[work['id']] = {'Date and time': work['datetime'],
+                            'Lesson': {'id': work['activity']['id'], 'Title of the lesson': work['activity']['title']},
+                            'Trainer': {'id': work['trainers'][0]['id'], 'Name': work['trainers'][0]['title']},
+                            'change': work['change']}
+    if work['change'] == None:
+        print(1)
+    else:
+        print(0)
+#    print(schedule)
+print(work_count)
+user_lesson_id = '176024814112023'
+
+#if
 # zapros = requests.post(reserve_url, headers=header, data={'fio': 'Рогачева Кристина', 'phone': '79965298428', 'scheduleId': '197679514112023', 'clubId': '1941'})
 # print(zapros.status_code)
 stop = False
