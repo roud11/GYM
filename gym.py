@@ -21,8 +21,14 @@ for script in scripts:
 headers = {'Authorization': 'Bearer ' + access_token}
 print(headers)
 req = requests.get(club_url, headers=headers)
-print(req.text[0])
-print(str())
+print(req.json())
+clubs = {}
+titels = []
+for club in req.json():
+    clubs[club['title']] = club['id']
+    titels.append(club['title'])
+print(titels)
+print(clubs)
 # zapros = requests.post(reserve_url, headers=header, data={'fio': 'Рогачева Кристина', 'phone': '79965298428', 'scheduleId': '197679514112023', 'clubId': '1941'})
 # print(zapros.status_code)
 stop = False
