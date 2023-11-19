@@ -29,6 +29,11 @@ for club in req.json():
     titels.append(club['title'])
 print(titels)
 print(clubs)
+
+club = 'Mytimefitness Комендантский'
+ID = str(clubs[club])
+schedule_url = 'https://mobifitness.ru/api/v6/club/' + ID + '/schedule.json'
+print(schedule_url)
 # zapros = requests.post(reserve_url, headers=header, data={'fio': 'Рогачева Кристина', 'phone': '79965298428', 'scheduleId': '197679514112023', 'clubId': '1941'})
 # print(zapros.status_code)
 stop = False
