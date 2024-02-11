@@ -5,7 +5,7 @@ import time
 
 main_url = 'https://mobifitness.ru/widget/792082?colored=1&lines=1&club=0&clubs=1941&grid30min=0&desc=0&direction=0&group=0&trainer=0&room=0&age=&level=&activity=0&language=ru&custom_css=0&category_filter=2&activity_filter=2&ren'
 reserve_url = 'https://mobifitness.ru/api/v6/account/reserve.json'
-club_url = 'https://mobifitness.ru/api/v6/franchise/clubs.json'
+clubs_url = 'https://mobifitness.ru/api/v6/franchise/clubs.json'
 
 soup_token = bs(requests.get(main_url).text, 'html.parser')
 scripts = soup_token.find_all('script')
@@ -20,14 +20,14 @@ for script in scripts:
 
 headers = {'Authorization': 'Bearer ' + access_token}
 print(headers)
-req = requests.get(club_url, headers=headers)
+req = requests.get(clubs_url, headers=headers)
 
 clubs = {}
-titels = []
+titles = []
 for club in req.json():
     clubs[club['title']] = club['id']
-    titels.append(club['title'])
-print(titels)
+    titles.append(club['title'])
+print(titles)
 print(clubs)
 
 club = 'Mytimefitness Комендантский'
@@ -49,7 +49,7 @@ for work in schedule_json['schedule']:
         print(1)
     else:
         print(0)
-#    print(schedule)
+print(schedule)
 print(work_count)
 user_lesson_id = '176024814112023'
 
@@ -60,7 +60,7 @@ stop = False
 
 # while not stop:
 #     if datetime.datetime.now().hour == 20:
-#         zapros = requests.post(url_rasp, headers=headers, data={'fio': 'Рогачева Кристина', 'phone': '79965298428', 'scheduleId': '197679514112023', 'clubId': '1941'})
+    #         zapros = requests.post(url_rasp, headers=headers, data={'fio': 'Рогачева Кристина', 'phone': '79965298428', 'scheduleId': '197679514112023', 'clubId': '1941'})
 #         code = zapros.status_code
 #         print(code)
 #         print(zapros.content)
@@ -68,3 +68,4 @@ stop = False
 #             stop = True
 #     time.sleep(2)
 
+#124907221112023

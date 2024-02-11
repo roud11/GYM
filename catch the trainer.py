@@ -20,5 +20,5 @@ for work in b:
   #          print(1)
 
 print(c)
-# Print json data using loop
+
 
