@@ -3,13 +3,16 @@ from bs4 import BeautifulSoup as bs
 from datetime import datetime, timedelta
 import time
 import Base as database
-import schedule
+from celery import Celery
+from Telegram import bot_client
 
 main_url = 'https://mobifitness.ru/widget/792082?colored=1&lines=1&club=0&clubs=1941&grid30min=0&desc=0&direction=0' \
            '&group=0&trainer=0&room=0&age=&level=&activity=0&language=ru&custom_css=0&category_filter=2' \
            '&activity_filter=2&ren'
 clubs_url = 'https://mobifitness.ru/api/v6/franchise/clubs.json'
 reserve_url = 'https://mobifitness.ru/api/v6/account/reserve.json'
+
+app = Celery('tasks', broker='redis://localhost:6379/0')
 
 
 def access_token():
@@ -33,7 +36,7 @@ def choose_club():
     clubs = {}
     for club in req.json():
         clubs[club['title']] = club['id']
-    return clubs  # тут нужно будет отправлять сообщением из словаря ключи, потом по ключу определять ID
+    return clubs  # тут нужно будет отправлять сообщением из словаря ключи, потом по ключу определять ID клуба
 
 
 def check_schedule(schedule_url):
@@ -52,9 +55,7 @@ def check_schedule(schedule_url):
 
 
 def process_schedule():
-    current_time = datetime.now()
-    future_time = (current_time + timedelta(hours=24))
-    future_time = future_time.replace(tzinfo=current_time.tzinfo)
+    current_time = datetime.now() + timedelta(seconds=30)
     # Считываем данные из таблицы Schedule_reserve
     with database.sql.connect("users.db") as con:
         cursor = con.cursor()
@@ -74,7 +75,7 @@ def process_schedule():
             date_time = datetime.fromisoformat(date_time_str).replace(tzinfo=current_time.tzinfo)
 
             # Проверяем, находится ли время занятия в допустимом диапазоне
-            if date_time < future_time:
+            if date_time < current_time:
                 # Удаляем запись из таблицы
                 cursor.execute("DELETE FROM Schedule_reserve WHERE user_ids = ? AND schedule_id = ? AND date_time = ?",
                                (user_id, schedule_id, date_time_str))
@@ -98,12 +99,17 @@ def process_schedule():
     return valid_reserve
 
 
-def registration(user):  # нужно дописать часть, где происходит регистрация
+@app.task
+def send_post_request(data, chat_id, lesson):
     headers = access_token()
-    club_id = '1941'
-    stop = False
-    while not stop:
-        stop = True
+    flag = False
+    while not flag:
+        response = requests.post(reserve_url, headers=headers, data=data)
+        if response.status_code == 200:
+            bot_client.send_message(chat_id,
+                                    f"Вы успешно записаны на занятие {lesson['Lesson']}.")
+            flag = True
+        print(response.status_code)
 
 
 if __name__ == "__main__":

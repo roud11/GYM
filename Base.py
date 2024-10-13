@@ -1,4 +1,5 @@
 import sqlite3 as sql
+from datetime import datetime, timedelta
 
 
 def create_db():
@@ -34,10 +35,23 @@ def user_exists(user_id):
 
 def schedule_reserve(user_id, schedule_id, time):
     with sql.connect("users.db") as con:
+        reserve_time = (datetime.fromisoformat(time) - timedelta(hours=24)).isoformat()
         cursor = con.cursor()
         cursor.execute("""INSERT INTO Schedule_reserve
             (user_ids, schedule_id, date_time)
-            VALUES(?, ?, ?)""", (user_id, schedule_id, time))
+            VALUES(?, ?, ?)""", (user_id, schedule_id, reserve_time))
+
+
+def get_user_data(user_id):
+    with sql.connect("users.db") as con:
+        cursor = con.cursor()
+        cursor.execute("SELECT user_name, phone_number FROM Users WHERE user_ids = ?", (user_id,))
+        user_data = cursor.fetchone()
+        if user_data:
+            print(user_data[0], user_data[1])
+            return user_data[0], user_data[1]
+        else:
+            return None, None
 
 
 if __name__ == "__main__":
