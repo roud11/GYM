@@ -6,31 +6,28 @@ services:
     ports:
       - "6379:6379"
 
-  celery:
-    build: .
-    container_name: celery-worker
-    command: celery -A logspace worker -l info
-    volumes:
-      - logs:/celery_logs/
-    depends_on:
-      - redis
-
-  sqlite:
-    image: "alpine/sqlite:latest"
-    volumes:
-      - ./app
-
   bot:
     build: .
     env_file:
       - ./.env
+    command: python Telegram.py
     volumes:
       - ./app
     restart: always
     depends_on:
       - redis
-      - celery
-      - sqlite
+
+  celery:
+    build: .
+    container_name: celery-worker
+    command: celery -A schedule worker -l info
+    volumes:
+      - ./celery_logs:/celery_logs/
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0/
+    depends_on:
+      - bot
+      - redis
 
 volumes:
-  - logs:
+  celery_logs:
