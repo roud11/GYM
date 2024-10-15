@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    container_name: celery-worker
+    command: celery -A logspace worker -l info
+    volumes:
+      - logs:/celery_logs/
+    depends_on:
+      - redis
+
+  sqlite:
+    image: "alpine/sqlite:latest"
+    volumes:
+      - ./app
+
+  bot:
+    build: .
+    env_file:
+      - ./.env
+    volumes:
+      - ./app
+    restart: always
+    depends_on:
+      - redis
+      - celery
+      - sqlite
+
+volumes:
+  - logs:
